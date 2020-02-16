@@ -34,32 +34,30 @@ class App extends Component {
             imageurl:'',
             box:{},
         }
+        // this.displayFaceBox = this.displayFaceBox.bind(this);
+        // this.onSubmit = this.onSubmit.bind(this);
     }
-    displayFaceBox = () => {
-        console.log("s");
-        // this.setState({box:box})
+
+    displayFaceBox = (box) => {
+        console.log(box,"ads");
+        this.setState({box:box});
      }
-    calculateFacelocation = () => 
+    calculateFacelocation = ( data ) => 
      {
-         console.log("ka");
-      // const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
-       // console.log(clarifaiFace);
-       // const image = document.getElementById('inputimage');
-       //console.log(image);
-       // const width = Number(image.width);
-       // const height= Number(image.height);
+      const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+      console.log("face",clarifaiFace);
+       const image = document.getElementById('inputimage');
+       const width = Number(image.width);
+       const height= Number(image.height);
        // console.log(width);
        // console.log(height);
-        // return {
-        //     leftcol : clarifaiFace.left_col*width,
-        //     toprow : clarifaiFace.top_row*height,
-        //     rightcol: width - (clarifaiFace.right_col*width),
-        //     bottomrow: height - (clarifaiFace.bottom_row*height),
-
-        // }
+        return {
+            leftcol :clarifaiFace.left_col*width,
+            toprow : clarifaiFace.top_row*height,
+            rightcol: width - (clarifaiFace.right_col*width),
+            bottomrow: height - (clarifaiFace.bottom_row*height),
+         }
     }
-
-
 
     onInputChange = ( event ) =>
     {
@@ -70,20 +68,11 @@ class App extends Component {
         this.setState({imageurl:this.state.input});
     app.models.predict(Clarifai.FACE_DETECT_MODEL ,this.state.input).then(
     //'a403429f2ddf4b49b307e318f00e528b'    //    Clarifai.COLOR_MODEL
-    function( response ) {
+    ( response ) => {
       console.log( response.outputs[0].data.regions[0].region_info.bounding_box);  
-      // const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
-       // console.log(clarifaiFace);
-       // const image = document.getElementById('inputimage');
-       // const width = Number(image.width);
-       // const height= Number(image.height);
-       console.log("as");   
-      // this.calculateFacelocation( );
-      console.log("sa"); 
-      this.displayFaceBox();
-    },
-    function(err) {console.log(err);}          
-    );
+      this.displayFaceBox( this.calculateFacelocation( response));
+    }
+    ).catch(err =>console.log);        
     }
     render(){
      return ( <div className="App">
@@ -93,12 +82,9 @@ class App extends Component {
         <Logo /> 
         <Rank />
         <ImageLinkForm onInputChange={this.onInputChange} onSubmit={this.onSubmit} /> 
-    
-        <FaceRecognition imageurl={this.state.imageurl} />    
-
+        <FaceRecognition box={ this.state.box }  imageurl={this.state.imageurl} />    
         </div>
     ); 
  }
 }
-
 export default App;
